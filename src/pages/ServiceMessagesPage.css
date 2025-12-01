@@ -1,0 +1,248 @@
+.service-messages-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-header {
+  background: rgba(26, 26, 46, 0.95);
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.messages-header .header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.messages-header h1 {
+  font-size: 24px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.messages-header p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 0;
+}
+
+.messages-main {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  width: 100%;
+}
+
+.messages-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.add-message-button,
+.save-all-button {
+  padding: 10px 20px;
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid #667eea;
+  border-radius: 6px;
+  color: #667eea;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-message-button:hover,
+.save-all-button:hover {
+  background: rgba(102, 126, 234, 0.2);
+}
+
+.message-form-section {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.message-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px 12px;
+  background: rgba(22, 33, 62, 0.8);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cancel-button,
+.save-button {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-color);
+}
+
+.save-button {
+  background: #667eea;
+  border: none;
+  color: white;
+}
+
+.messages-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.message-card {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-header h3 {
+  font-size: 18px;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.default-badge {
+  padding: 4px 8px;
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid #4caf50;
+  border-radius: 4px;
+  color: #4caf50;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.message-content {
+  flex: 1;
+}
+
+.message-content p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.message-date {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.message-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-button,
+.delete-button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.edit-button {
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+}
+
+.edit-button:hover {
+  background: rgba(102, 126, 234, 0.3);
+}
+
+.delete-button {
+  background: rgba(244, 67, 54, 0.2);
+  color: #ef4444;
+}
+
+.delete-button:hover {
+  background: rgba(244, 67, 54, 0.3);
+}
+
+@media (max-width: 768px) {
+  .messages-list {
+    grid-template-columns: 1fr;
+  }
+
+  .messages-controls {
+    flex-direction: column;
+  }
+
+  .add-message-button,
+  .save-all-button {
+    width: 100%;
+  }
+}
+

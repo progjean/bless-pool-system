@@ -1,0 +1,29 @@
+.purchase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.purchases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.no-purchases {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.no-purchases p {
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .purchases-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

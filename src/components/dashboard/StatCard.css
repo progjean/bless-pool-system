@@ -1,0 +1,100 @@
+.stat-card {
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-card.alert {
+  border-color: rgba(255, 152, 0, 0.5);
+}
+
+.stat-card.alert::before {
+  background: linear-gradient(90deg, #ff9800 0%, #f5576c 100%);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-icon {
+  font-size: 32px;
+}
+
+.stat-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.stat-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.stat-trend.trend-up {
+  color: var(--success-color);
+}
+
+.stat-trend.trend-down {
+  color: var(--error-color);
+}
+
+.stat-trend.trend-stable {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .stat-value {
+    font-size: 28px;
+  }
+}
+

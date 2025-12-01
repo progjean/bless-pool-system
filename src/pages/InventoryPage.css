@@ -1,0 +1,131 @@
+.inventory-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.inventory-header {
+  background: rgba(26, 26, 46, 0.95);
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.inventory-header .header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inventory-header h1 {
+  font-size: 28px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.back-button {
+  padding: 6px 12px;
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid #667eea;
+  border-radius: 6px;
+  color: #667eea;
+  font-size: 14px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background: rgba(102, 126, 234, 0.2);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-info span {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.logout-button {
+  padding: 8px 16px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid var(--error-color);
+  border-radius: 6px;
+  color: var(--error-color);
+  font-size: 14px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background: rgba(244, 67, 54, 0.2);
+}
+
+.inventory-main {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  width: 100%;
+}
+
+.inventory-controls {
+  margin-bottom: 32px;
+}
+
+.new-transaction-button {
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.new-transaction-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.inventory-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.products-section,
+.transactions-section {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.products-section h2,
+.transactions-section h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+
+@media (max-width: 768px) {
+  .inventory-sections {
+    gap: 20px;
+  }
+}
+

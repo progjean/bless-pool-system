@@ -1,0 +1,40 @@
+.period-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.period-button {
+  padding: 8px 16px;
+  background: rgba(22, 33, 62, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.period-button:hover {
+  background: rgba(22, 33, 62, 0.8);
+  border-color: #667eea;
+  color: var(--text-color);
+}
+
+.period-button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .period-selector {
+    width: 100%;
+  }
+
+  .period-button {
+    flex: 1;
+  }
+}
+

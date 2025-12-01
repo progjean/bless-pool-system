@@ -1,0 +1,115 @@
+.overdue-invoices {
+  background: rgba(26, 26, 46, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.invoices-summary {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.invoices-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(22, 33, 62, 0.5);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px 12px;
+  background: rgba(22, 33, 62, 0.3);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.table-row:hover {
+  background: rgba(22, 33, 62, 0.6);
+  transform: translateX(4px);
+}
+
+.table-cell {
+  color: var(--text-color);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.table-cell.amount {
+  font-weight: 600;
+  color: var(--warning-color);
+}
+
+.table-cell.days {
+  font-weight: 600;
+}
+
+.table-cell.days.warning {
+  color: var(--warning-color);
+}
+
+.table-cell.days.critical {
+  color: var(--error-color);
+}
+
+@media (max-width: 768px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .table-header {
+    display: none;
+  }
+
+  .table-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-right: 8px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+}
+

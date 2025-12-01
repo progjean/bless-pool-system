@@ -1,0 +1,106 @@
+.water-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.water-alerts-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.alert-card {
+  padding: 16px;
+  background: rgba(22, 33, 62, 0.5);
+  border-radius: 8px;
+  border-left: 4px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.alert-card:hover {
+  background: rgba(22, 33, 62, 0.8);
+  transform: translateX(4px);
+}
+
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.alert-client {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.severity-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.severity-badge.high {
+  background: rgba(244, 67, 54, 0.2);
+  color: var(--error-color);
+}
+
+.severity-badge.medium {
+  background: rgba(255, 152, 0, 0.2);
+  color: var(--warning-color);
+}
+
+.severity-badge.low {
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--success-color);
+}
+
+.alert-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alert-parameter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.parameter-name {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.parameter-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.parameter-value.high {
+  color: var(--error-color);
+}
+
+.parameter-value.medium {
+  color: var(--warning-color);
+}
+
+.parameter-value.low {
+  color: var(--success-color);
+}
+
+.alert-standard {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.alert-time {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+

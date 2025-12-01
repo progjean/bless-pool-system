@@ -1,0 +1,125 @@
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.history-item {
+  background: rgba(22, 33, 62, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.history-item:hover {
+  background: rgba(22, 33, 62, 0.8);
+  transform: translateX(4px);
+  border-color: #667eea;
+}
+
+.history-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.history-item-header h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0 0 4px 0;
+}
+
+.history-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.paid {
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--success-color);
+}
+
+.status-badge.pending {
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+}
+
+.status-badge.overdue {
+  background: rgba(244, 67, 54, 0.2);
+  color: var(--error-color);
+}
+
+.status-badge.completed {
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--success-color);
+}
+
+.pdf-icon {
+  font-size: 24px;
+}
+
+.history-item-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item.full-width {
+  width: 100%;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.empty-history {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-history p {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .history-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .history-item-details {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+

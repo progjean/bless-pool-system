@@ -1,0 +1,47 @@
+.realtime-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.realtime-indicator.connected {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.realtime-indicator.disconnected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s infinite;
+}
+
+.realtime-indicator.connected .indicator-dot {
+  background: #10b981;
+}
+
+.realtime-indicator.disconnected .indicator-dot {
+  background: #ef4444;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+

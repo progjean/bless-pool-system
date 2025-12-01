@@ -1,0 +1,44 @@
+.export-button-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.export-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.export-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.export-csv {
+  background: #10b981;
+  color: white;
+}
+
+.export-csv:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.export-pdf {
+  background: #ef4444;
+  color: white;
+}
+
+.export-pdf:hover:not(:disabled) {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+

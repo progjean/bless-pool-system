@@ -1,0 +1,173 @@
+.invoice-card {
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.invoice-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.invoice-card:hover {
+  transform: translateY(-4px);
+  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+}
+
+.invoice-card:hover::before {
+  opacity: 1;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.card-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0 0 4px 0;
+}
+
+.customer-name {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.paid {
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--success-color);
+}
+
+.status-badge.sent {
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+}
+
+.status-badge.overdue {
+  background: rgba(244, 67, 54, 0.2);
+  color: var(--error-color);
+}
+
+.status-badge.draft {
+  background: rgba(158, 158, 158, 0.2);
+  color: var(--text-secondary);
+}
+
+.status-badge.cancelled {
+  background: rgba(158, 158, 158, 0.2);
+  color: var(--text-secondary);
+}
+
+.card-body {
+  margin-bottom: 16px;
+}
+
+.invoice-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.info-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 14px;
+  color: var(--text-color);
+  font-weight: 600;
+  text-align: right;
+}
+
+.days-indicator {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.days-indicator.warning {
+  color: var(--warning-color);
+}
+
+.days-indicator.overdue {
+  color: var(--error-color);
+}
+
+.late-fee-row {
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.late-fee {
+  color: var(--error-color);
+}
+
+.total-row {
+  padding-top: 8px;
+  border-top: 2px solid var(--border-color);
+  margin-top: 4px;
+}
+
+.total {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.recurring-badge {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.card-arrow {
+  font-size: 24px;
+  color: #667eea;
+  transition: transform 0.3s ease;
+}
+
+.invoice-card:hover .card-arrow {
+  transform: translateX(4px);
+}
+

@@ -1,0 +1,261 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User, UserRole, AuthContextType } from '../types/user';
+import { api, apiEndpoints } from '../services/api';
+import { supabase, isSupabaseConfigured, handleSupabaseError } from '../services/supabase';
+import { showToast } from '../utils/toast';
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Mock de usuários para fallback quando API não estiver disponível
+const MOCK_USERS: User[] = [
+  {
+    id: '1',
+    username: 'admin',
+    email: 'admin@blesspool.com',
+    role: UserRole.ADMIN,
+    name: 'Administrador',
+    companyId: 'company-1',
+    companyName: 'Bless Pool',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    username: 'supervisor',
+    email: 'supervisor@blesspool.com',
+    role: UserRole.SUPERVISOR,
+    name: 'Supervisor',
+    companyId: 'company-1',
+    companyName: 'Bless Pool',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    username: 'tecnico',
+    email: 'tecnico@blesspool.com',
+    role: UserRole.TECHNICIAN,
+    name: 'Técnico',
+    companyId: 'company-1',
+    companyName: 'Bless Pool',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      if (isSupabaseConfigured()) {
+        // Usar Supabase Auth
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // Buscar dados do usuário da tabela users ou usar metadata
+          const userData: User = {
+            id: session.user.id,
+            username: session.user.email?.split('@')[0] || 'user',
+            email: session.user.email || '',
+            role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+            companyId: session.user.user_metadata?.company_id,
+            companyName: session.user.user_metadata?.company_name,
+            createdAt: session.user.created_at,
+            updatedAt: session.user.updated_at || session.user.created_at,
+          };
+          
+          setUser(userData);
+          localStorage.setItem('blessPool_user', JSON.stringify(userData));
+        }
+        
+        // Escutar mudanças de autenticação
+        supabase.auth.onAuthStateChange((_event, session) => {
+          if (session?.user) {
+            const userData: User = {
+              id: session.user.id,
+              username: session.user.email?.split('@')[0] || 'user',
+              email: session.user.email || '',
+              role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+              companyId: session.user.user_metadata?.company_id,
+              companyName: session.user.user_metadata?.company_name,
+              createdAt: session.user.created_at,
+              updatedAt: session.user.updated_at || session.user.created_at,
+            };
+            setUser(userData);
+            localStorage.setItem('blessPool_user', JSON.stringify(userData));
+          } else {
+            clearAuth();
+          }
+        });
+      } else {
+        // Fallback: Verificar se há usuário salvo no localStorage
+        const savedUser = localStorage.getItem('blessPool_user');
+        const token = localStorage.getItem('blessPool_token');
+        
+        if (savedUser && token) {
+          try {
+            const userData = JSON.parse(savedUser);
+            setUser(userData);
+            api.setToken(token);
+            validateToken();
+          } catch (error) {
+            console.error('Erro ao carregar usuário salvo:', error);
+            clearAuth();
+          }
+        }
+      }
+      
+      setLoading(false);
+    };
+
+    initializeAuth();
+  }, []);
+
+  const validateToken = async () => {
+    try {
+      // Tentar validar token com API
+      const userData = await api.get<User>(apiEndpoints.auth.me);
+      setUser(userData);
+      localStorage.setItem('blessPool_user', JSON.stringify(userData));
+    } catch (error) {
+      // Se falhar, usar dados do localStorage (modo offline)
+      console.warn('Não foi possível validar token, usando dados locais');
+    }
+  };
+
+  const clearAuth = () => {
+    setUser(null);
+    api.setToken(null);
+    localStorage.removeItem('blessPool_user');
+    localStorage.removeItem('blessPool_token');
+    localStorage.removeItem('blessPool_refreshToken');
+  };
+
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      if (isSupabaseConfigured()) {
+        // Login com Supabase
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: username.includes('@') ? username : `${username}@blesspool.com`,
+          password: password,
+        });
+
+        if (error) throw error;
+        if (!data.user || !data.session) return false;
+
+        // Buscar role do usuário (pode estar em metadata ou em tabela separada)
+        const role = data.user.user_metadata?.role || UserRole.TECHNICIAN;
+        
+        const userData: User = {
+          id: data.user.id,
+          username: username,
+          email: data.user.email || '',
+          role: role as UserRole,
+          name: data.user.user_metadata?.name || username,
+          companyId: data.user.user_metadata?.company_id,
+          companyName: data.user.user_metadata?.company_name,
+          createdAt: data.user.created_at,
+          updatedAt: data.user.updated_at || data.user.created_at,
+        };
+
+        setUser(userData);
+        localStorage.setItem('blessPool_user', JSON.stringify(userData));
+        localStorage.setItem('blessPool_token', data.session.access_token);
+        if (data.session.refresh_token) {
+          localStorage.setItem('blessPool_refreshToken', data.session.refresh_token);
+        }
+
+        showToast.success('Login realizado com sucesso!');
+        return true;
+      } else {
+        // Tentar login via API tradicional
+        const response = await api.post<{
+          user: User;
+          token: string;
+          refreshToken?: string;
+        }>(apiEndpoints.auth.login, { username, password });
+
+        if (response && response.user && response.token) {
+          setUser(response.user);
+          api.setToken(response.token);
+          localStorage.setItem('blessPool_user', JSON.stringify(response.user));
+          
+          if (response.refreshToken) {
+            localStorage.setItem('blessPool_refreshToken', response.refreshToken);
+          }
+          
+          showToast.success('Login realizado com sucesso!');
+          return true;
+        }
+      }
+    } catch (error) {
+      // Se API não estiver disponível, usar modo mock (desenvolvimento)
+      if (import.meta.env.DEV || import.meta.env.VITE_USE_MOCK_AUTH === 'true') {
+        console.warn('API não disponível, usando autenticação mock');
+        const foundUser = MOCK_USERS.find(u => u.username === username);
+        
+        if (foundUser) {
+          setUser(foundUser);
+          localStorage.setItem('blessPool_user', JSON.stringify(foundUser));
+          const mockToken = `mock_token_${Date.now()}`;
+          api.setToken(mockToken);
+          showToast.success('Login realizado (modo desenvolvimento)');
+          return true;
+        }
+      }
+      
+      const errorMessage = error instanceof Error 
+        ? handleSupabaseError(error) 
+        : 'Erro ao fazer login';
+      showToast.error(errorMessage);
+      return false;
+    }
+    
+    return false;
+  };
+
+  const logout = async () => {
+    try {
+      if (isSupabaseConfigured()) {
+        // Logout do Supabase
+        await supabase.auth.signOut();
+      } else {
+        // Tentar logout via API tradicional
+        await api.post(apiEndpoints.auth.logout);
+      }
+    } catch (error) {
+      // Ignorar erros de logout (pode estar offline)
+      console.warn('Erro ao fazer logout:', error);
+    } finally {
+      clearAuth();
+      showToast.info('Logout realizado');
+    }
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        isAuthenticated: !!user,
+        loading,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+  }
+  return context;
+};
+
