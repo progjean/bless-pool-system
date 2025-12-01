@@ -4,13 +4,22 @@
 -- as alterações também sejam refletidas no Auth
 
 -- Função para atualizar user_metadata no auth.users quando a tabela users é atualizada
+-- IMPORTANTE: Esta função preserva o email original do Auth (não altera o email)
 CREATE OR REPLACE FUNCTION sync_users_to_auth()
 RETURNS TRIGGER AS $$
+DECLARE
+  current_metadata jsonb;
 BEGIN
+  -- Buscar metadata atual para preservar campos que não estão na tabela users
+  SELECT raw_user_meta_data INTO current_metadata
+  FROM auth.users
+  WHERE id = NEW.id;
+  
   -- Atualizar raw_user_meta_data no auth.users quando a tabela users é atualizada
+  -- Preservar campos existentes que não estão sendo atualizados
   UPDATE auth.users
   SET 
-    raw_user_meta_data = jsonb_build_object(
+    raw_user_meta_data = COALESCE(current_metadata, '{}'::jsonb) || jsonb_build_object(
       'role', NEW.role,
       'name', NEW.name,
       'username', NEW.username,

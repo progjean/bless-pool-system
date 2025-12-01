@@ -206,14 +206,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (!userError && userData && userData.email) {
               userEmail = userData.email;
             } else {
-              // Se não encontrou na tabela users, tentar com email padrão
-              // Isso permite login com username mesmo se não estiver na tabela ainda
-              userEmail = `${username}@blesspool.com`;
+              // Se não encontrou na tabela users, mostrar erro claro
+              showToast.error('Username não encontrado. Use o email para fazer login ou verifique se o username está correto.');
+              return false;
             }
           } catch (err) {
-            // Se a tabela users não existir ou der erro, usar email padrão
-            console.warn('Erro ao buscar usuário por username, tentando email padrão:', err);
-            userEmail = `${username}@blesspool.com`;
+            // Se a tabela users não existir ou der erro, mostrar erro
+            console.error('Erro ao buscar usuário por username:', err);
+            showToast.error('Erro ao buscar usuário. Tente fazer login com o email.');
+            return false;
           }
         }
         

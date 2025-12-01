@@ -23,49 +23,48 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON public.users(username);
 CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
 
 -- Função para sincronizar um usuário do Auth para a tabela users
+-- IMPORTANTE: Esta função só sincroniza em INSERT, não em UPDATE
+-- Isso evita conflito com o trigger que sincroniza de users para auth.users
 CREATE OR REPLACE FUNCTION sync_auth_user_to_users()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- Inserir ou atualizar na tabela users quando um usuário é criado/atualizado no Auth
-  INSERT INTO public.users (
-    id,
-    email,
-    username,
-    name,
-    role,
-    company_id,
-    company_name,
-    created_at,
-    updated_at
-  )
-  VALUES (
-    NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'username', SPLIT_PART(NEW.email, '@', 1)),
-    COALESCE(NEW.raw_user_meta_data->>'name', SPLIT_PART(NEW.email, '@', 1)),
-    COALESCE(NEW.raw_user_meta_data->>'role', 'technician')::VARCHAR,
-    (NEW.raw_user_meta_data->>'company_id')::UUID,
-    NEW.raw_user_meta_data->>'company_name',
-    NEW.created_at,
-    NEW.updated_at
-  )
-  ON CONFLICT (id) DO UPDATE SET
-    email = EXCLUDED.email,
-    username = EXCLUDED.username,
-    name = EXCLUDED.name,
-    role = EXCLUDED.role,
-    company_id = EXCLUDED.company_id,
-    company_name = EXCLUDED.company_name,
-    updated_at = EXCLUDED.updated_at;
+  -- Apenas inserir quando é um novo usuário (INSERT)
+  -- Em UPDATE, não sobrescrever para evitar conflito com alterações feitas na tabela users
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO public.users (
+      id,
+      email,
+      username,
+      name,
+      role,
+      company_id,
+      company_name,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      NEW.id,
+      NEW.email,
+      COALESCE(NEW.raw_user_meta_data->>'username', SPLIT_PART(NEW.email, '@', 1)),
+      COALESCE(NEW.raw_user_meta_data->>'name', SPLIT_PART(NEW.email, '@', 1)),
+      COALESCE(NEW.raw_user_meta_data->>'role', 'technician')::VARCHAR,
+      (NEW.raw_user_meta_data->>'company_id')::UUID,
+      NEW.raw_user_meta_data->>'company_name',
+      NEW.created_at,
+      NEW.updated_at
+    )
+    ON CONFLICT (id) DO NOTHING; -- Não atualizar se já existir
+  END IF;
   
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger para sincronizar automaticamente quando um usuário é criado no Auth
+-- Trigger para sincronizar automaticamente quando um usuário é CRIADO no Auth
+-- IMPORTANTE: Apenas INSERT, não UPDATE, para evitar sobrescrever alterações da tabela users
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
-  AFTER INSERT OR UPDATE ON auth.users
+  AFTER INSERT ON auth.users
   FOR EACH ROW
   EXECUTE FUNCTION sync_auth_user_to_users();
 
