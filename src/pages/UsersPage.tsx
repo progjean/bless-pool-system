@@ -8,6 +8,7 @@ import { ExportButton } from '../components/common/ExportButton';
 import { exportToCSV } from '../utils/exportUtils';
 import { showToast } from '../utils/toast';
 import { UserRole as UserRoleEnum } from '../types/user';
+import { UserFormModal } from '../components/users/UserFormModal';
 import './UsersPage.css';
 
 export const UsersPage: React.FC = () => {
@@ -75,6 +76,28 @@ export const UsersPage: React.FC = () => {
       'Criado em': new Date(u.createdAt).toLocaleDateString(language === 'pt-BR' ? 'pt-BR' : 'en-US'),
     }));
     exportToCSV(data, 'usuarios', Object.keys(data[0]));
+  };
+
+  const handleSaveUser = async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      if (editingUser) {
+        await usersService.update(editingUser.id, userData);
+        setUsers(prev =>
+          prev.map(u => (u.id === editingUser.id ? { ...u, ...userData } : u))
+        );
+        showToast.success(language === 'pt-BR' ? 'Usuário atualizado!' : 'User updated!');
+      } else {
+        const newUser = await usersService.create(userData);
+        setUsers(prev => [newUser, ...prev]);
+        showToast.success(language === 'pt-BR' ? 'Usuário criado!' : 'User created!');
+      }
+      setShowForm(false);
+      setEditingUser(null);
+    } catch (error) {
+      console.error('Erro ao salvar usuário:', error);
+      // O toast já é mostrado pelo serviço
+      throw error;
+    }
   };
 
   const getRoleLabel = (role: UserRole) => {
@@ -237,6 +260,17 @@ export const UsersPage: React.FC = () => {
           )}
         </div>
       </main>
+
+      {showForm && (
+        <UserFormModal
+          user={editingUser}
+          onClose={() => {
+            setShowForm(false);
+            setEditingUser(null);
+          }}
+          onSave={handleSaveUser}
+        />
+      )}
     </div>
   );
 };

@@ -86,7 +86,7 @@ git commit -m "Initial commit - Bless Pool System"
 
 5. Conecte ao repositório GitHub (substitua `SEU-USUARIO` e `SEU-REPOSITORIO`):
 ```bash
-git remote add origin https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
+git remote add origin https://github.com/progjean/bless-pool-system
 ```
 
 **Exemplo:**
