@@ -136,7 +136,20 @@ export const InventoryPage: React.FC = () => {
                   productsService.list(),
                   productsService.listTransactions(),
                 ]);
-                setProducts(productsData);
+                // Converter Product[] para InventoryProduct[]
+                const inventoryProducts: InventoryProduct[] = productsData.map(p => ({
+                  id: p.id,
+                  productId: p.id,
+                  productName: p.name,
+                  unit: p.unit,
+                  currentStock: p.stock,
+                  minStock: p.minStock || 0,
+                  category: 'other',
+                  lastUpdated: p.updatedAt || p.createdAt || new Date().toISOString(),
+                  totalEntries: 0,
+                  totalExits: 0,
+                }));
+                setProducts(inventoryProducts);
                 setTransactions(transactionsData);
                 setShowTransactionModal(false);
                 setSelectedProduct(null);

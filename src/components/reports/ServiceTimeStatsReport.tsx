@@ -17,7 +17,7 @@ export const ServiceTimeStatsReport: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const result = await reportsService.getServiceTimeStats(filters);
+        const result = await reportsService.getServiceTimeStats();
         setData(result);
       } catch (error) {
         console.error('Erro ao carregar relatório:', error);

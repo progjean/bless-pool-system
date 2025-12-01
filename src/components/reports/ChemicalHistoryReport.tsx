@@ -17,7 +17,7 @@ export const ChemicalHistoryReport: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const result = await reportsService.getChemicalHistory(filters);
+        const result = await reportsService.getChemicalHistory(filters.productId);
         setData(result);
       } catch (error) {
         console.error('Erro ao carregar relatório:', error);

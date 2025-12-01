@@ -16,7 +16,10 @@ export const ChemicalConsumptionByCustomerReport: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const result = await reportsService.getChemicalConsumptionByCustomer(filters);
+        const result = await reportsService.getChemicalConsumptionByCustomer({
+          startDate: filters.dateFrom,
+          endDate: filters.dateTo,
+        });
         setData(result);
       } catch (error) {
         console.error('Erro ao carregar relatório:', error);

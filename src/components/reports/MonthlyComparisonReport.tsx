@@ -18,7 +18,11 @@ export const MonthlyComparisonReport: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const result = await reportsService.getMonthlyComparison(filters);
+        // Extrair meses dos filtros ou usar padrão de 6 meses
+        const months = filters.dateFrom && filters.dateTo ? 
+          Math.ceil((new Date(filters.dateTo).getTime() - new Date(filters.dateFrom).getTime()) / (1000 * 60 * 60 * 24 * 30)) : 
+          6;
+        const result = await reportsService.getMonthlyComparison(months);
         setData(result);
       } catch (error) {
         console.error('Erro ao carregar relatório:', error);

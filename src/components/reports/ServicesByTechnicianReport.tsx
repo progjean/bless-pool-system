@@ -17,7 +17,7 @@ export const ServicesByTechnicianReport: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const result = await reportsService.getServicesByTechnician(filters);
+        const result = await reportsService.getServicesByTechnician();
         setData(result);
       } catch (error) {
         console.error('Erro ao carregar relatório:', error);
