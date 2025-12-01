@@ -207,6 +207,9 @@ export const usersService = {
       if (userData.email !== undefined) updateData.email = userData.email;
       if (userData.username !== undefined) updateData.username = userData.username;
 
+      // Atualizar updated_at
+      updateData.updated_at = new Date().toISOString();
+
       const { data, error } = await supabase
         .from('users')
           .update(updateData as any)
@@ -217,6 +220,18 @@ export const usersService = {
       if (error) throw error;
 
       const updated: User = supabaseToUser(data);
+
+      // Tentar sincronizar para auth.users via função RPC (se existir)
+      // Isso garante que as alterações persistam após logout/login
+      try {
+        await supabase.rpc('sync_users_to_auth', { user_id: id }).catch(() => {
+          // Se a função RPC não existir, não é crítico - o trigger SQL deve cuidar disso
+          console.warn('Função sync_users_to_auth não encontrada. Certifique-se de executar sync_users_to_auth.sql');
+        });
+      } catch (rpcError) {
+        // Ignorar erros da RPC - o trigger SQL deve cuidar da sincronização
+        console.warn('Erro ao sincronizar para auth.users:', rpcError);
+      }
 
       // Invalidar cache
       dataCache.invalidatePattern('^users:');

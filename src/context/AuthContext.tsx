@@ -55,10 +55,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
-          // Buscar dados do usuário da tabela users ou usar metadata
-          const userData: User = {
+          // Buscar dados completos do usuário da tabela users (se existir)
+          let fullUserData: User | null = null;
+          try {
+            const { data: dbUser, error: dbError } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (!dbError && dbUser) {
+              fullUserData = {
+                id: dbUser.id,
+                username: dbUser.username || session.user.email?.split('@')[0] || 'user',
+                email: dbUser.email || session.user.email || '',
+                role: (dbUser.role as UserRole) || (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+                name: dbUser.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                companyId: dbUser.company_id || session.user.user_metadata?.company_id,
+                companyName: dbUser.company_name || session.user.user_metadata?.company_name,
+                createdAt: dbUser.created_at || session.user.created_at,
+                updatedAt: dbUser.updated_at || session.user.updated_at || session.user.created_at,
+              };
+            }
+          } catch (err) {
+            console.warn('Erro ao buscar dados completos do usuário:', err);
+          }
+
+          // Usar dados da tabela users se disponível, senão usar metadata do Auth
+          const userData: User = fullUserData || {
             id: session.user.id,
-            username: session.user.email?.split('@')[0] || 'user',
+            username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'user',
             email: session.user.email || '',
             role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
             name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
@@ -73,11 +99,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
         
         // Escutar mudanças de autenticação
-        supabase.auth.onAuthStateChange((_event, session) => {
+        supabase.auth.onAuthStateChange(async (_event, session) => {
           if (session?.user) {
-            const userData: User = {
+            // Buscar dados completos da tabela users (se existir)
+            let fullUserData: User | null = null;
+            try {
+              const { data: dbUser, error: dbError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+              
+              if (!dbError && dbUser) {
+                fullUserData = {
+                  id: dbUser.id,
+                  username: dbUser.username || session.user.email?.split('@')[0] || 'user',
+                  email: dbUser.email || session.user.email || '',
+                  role: (dbUser.role as UserRole) || (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+                  name: dbUser.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                  companyId: dbUser.company_id || session.user.user_metadata?.company_id,
+                  companyName: dbUser.company_name || session.user.user_metadata?.company_name,
+                  createdAt: dbUser.created_at || session.user.created_at,
+                  updatedAt: dbUser.updated_at || session.user.updated_at || session.user.created_at,
+                };
+              }
+            } catch (err) {
+              console.warn('Erro ao buscar dados completos do usuário:', err);
+            }
+
+            // Usar dados da tabela users se disponível, senão usar metadata do Auth
+            const userData: User = fullUserData || {
               id: session.user.id,
-              username: session.user.email?.split('@')[0] || 'user',
+              username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'user',
               email: session.user.email || '',
               role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
               name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
