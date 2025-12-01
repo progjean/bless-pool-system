@@ -28,20 +28,28 @@ export const usersService = {
       }
 
       try {
-        // Tentar buscar de uma tabela users se existir
-        const { data, error: tableError } = await supabase
+        // Buscar da tabela users
+        const { data: usersData, error: tableError } = await supabase
           .from('users')
           .select('*')
           .order('created_at', { ascending: false });
         
-        if (!tableError && data) {
-          return (data || []).map(row => supabaseToUser(row));
+        if (tableError) {
+          console.warn('⚠️ Erro ao buscar da tabela users:', tableError);
         }
 
-        // Se a tabela não existe, usar fallback
-        // Em produção, você precisaria criar uma tabela users ou usar uma função/stored procedure
-        // que exponha os usuários do auth.users de forma segura
-        throw new Error('Tabela users não encontrada');
+        // Se encontrou dados na tabela users, retornar
+        if (usersData && usersData.length > 0) {
+          return usersData.map(row => supabaseToUser(row));
+        }
+
+        // Se a tabela está vazia ou não existe, tentar sincronizar usuários do Auth
+        // Isso acontece quando usuários são criados diretamente no Auth mas não na tabela users
+        console.warn('⚠️ Tabela users vazia. Usuários do Auth precisam ser sincronizados.');
+        console.warn('⚠️ Execute o script sync_auth_users.sql no Supabase SQL Editor para sincronizar.');
+        
+        // Retornar array vazio se não encontrou nada
+        return [];
       } catch (error: any) {
         // Se a tabela não existe ou não tem permissão, usar fallback
         if (isTableNotFoundError(error)) {
