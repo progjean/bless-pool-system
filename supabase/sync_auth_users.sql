@@ -1,6 +1,26 @@
 -- Script para sincronizar usuários do Auth para a tabela users
 -- Execute este script no SQL Editor do Supabase Dashboard
 
+-- Habilitar extensões necessárias
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Criar a tabela users se ela não existir
+CREATE TABLE IF NOT EXISTS public.users (
+  id UUID PRIMARY KEY,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  role VARCHAR(20) CHECK (role IN ('admin', 'supervisor', 'technician')) NOT NULL DEFAULT 'technician',
+  name VARCHAR(255) NOT NULL,
+  company_id UUID,
+  company_name VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Criar índices para melhor performance
+CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
+
 -- Função para sincronizar um usuário do Auth para a tabela users
 CREATE OR REPLACE FUNCTION sync_auth_user_to_users()
 RETURNS TRIGGER AS $$
