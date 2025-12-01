@@ -109,7 +109,7 @@ export const WorkArea: React.FC = () => {
             address: `${customer.address}, ${customer.city || ''} ${customer.state || ''} ${customer.zipCode || ''}`.trim(),
             latitude: 0, // Será necessário adicionar coordenadas ao Customer ou buscar de outro lugar
             longitude: 0,
-            serviceType: customer.typeOfService?.toLowerCase() || 'regular',
+            serviceType: (customer.typeOfService?.toLowerCase() || 'regular') as 'regular' | 'deep' | 'repair',
             status,
             scheduledTime: customer.serviceDay ? '09:00' : '09:00', // Pode ser melhorado
             estimatedDuration: customer.minutesAtStop || 25,

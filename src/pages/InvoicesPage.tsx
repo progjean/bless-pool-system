@@ -190,7 +190,6 @@ export const InvoicesPage: React.FC = () => {
           <InvoiceFiltersComponent
             filters={filters}
             onFiltersChange={setFilters}
-            customers={customers}
           />
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>

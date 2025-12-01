@@ -157,7 +157,15 @@ export const CustomerDetailsPage: React.FC = () => {
               onUpdateCustomer={handleUpdateCustomer}
               onGenerateInvoices={handleGenerateInvoices}
             />
-            <CustomerHistory customerDetails={customerDetails} />
+            <CustomerHistory customerDetails={{
+              ...customerDetails,
+              paymentHistory: [],
+              serviceHistory: [],
+              sentPDFs: [],
+              productHistory: [],
+              readingHistory: [],
+              timeline: [],
+            }} />
           </div>
         </div>
       </main>

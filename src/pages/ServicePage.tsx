@@ -95,7 +95,14 @@ export const ServicePage: React.FC = () => {
       try {
         // Carregar checklist
         const checklistData = await settingsService.getChecklist();
-        setChecklist(checklistData);
+        // Converter ChecklistItem de settings para route
+        const convertedChecklist = checklistData.map(item => ({
+          id: item.id,
+          label: item.label,
+          checked: false, // Inicialmente não marcado
+          category: item.category === 'chemical' ? 'other' : item.category as 'pool' | 'equipment' | 'safety' | 'other',
+        }));
+        setChecklist(convertedChecklist);
 
         // Buscar readings configurados do serviço ou usar defaults
         let readingsToUse = DEFAULT_READINGS;

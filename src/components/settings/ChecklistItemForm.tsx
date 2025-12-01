@@ -61,7 +61,7 @@ export const ChecklistItemForm: React.FC<ChecklistItemFormProps> = ({
           <label>{t('settings.checklist.category')} *</label>
           <select
             value={formData.category}
-            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as typeof prev.category }))}
             required
           >
             <option value="pool">Pool</option>
