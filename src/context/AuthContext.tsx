@@ -3,6 +3,7 @@ import { User, UserRole, AuthContextType } from '../types/user';
 import { api, apiEndpoints } from '../services/api';
 import { supabase, isSupabaseConfigured, handleSupabaseError } from '../services/supabase';
 import { showToast } from '../utils/toast';
+import { usersService } from '../services/usersService';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -138,23 +139,73 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       if (isSupabaseConfigured()) {
-        // Login com Supabase
+        let userEmail = username;
+        
+        // Se não for um email (não contém @), buscar na tabela users pelo username
+        if (!username.includes('@')) {
+          try {
+            const { data: userData, error: userError } = await supabase
+              .from('users')
+              .select('email, username, name, role, company_id, company_name')
+              .eq('username', username)
+              .single();
+            
+            if (!userError && userData && userData.email) {
+              userEmail = userData.email;
+            } else {
+              // Se não encontrou na tabela users, tentar com email padrão
+              // Isso permite login com username mesmo se não estiver na tabela ainda
+              userEmail = `${username}@blesspool.com`;
+            }
+          } catch (err) {
+            // Se a tabela users não existir ou der erro, usar email padrão
+            console.warn('Erro ao buscar usuário por username, tentando email padrão:', err);
+            userEmail = `${username}@blesspool.com`;
+          }
+        }
+        
+        // Login com Supabase usando o email encontrado
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: username.includes('@') ? username : `${username}@blesspool.com`,
+          email: userEmail,
           password: password,
         });
 
         if (error) throw error;
         if (!data.user || !data.session) return false;
 
-        // Buscar role do usuário (pode estar em metadata ou em tabela separada)
-        const role = data.user.user_metadata?.role || UserRole.TECHNICIAN;
-        
-        const userData: User = {
+        // Buscar dados completos do usuário na tabela users (se existir)
+        let fullUserData: User | null = null;
+        try {
+          const { data: dbUser, error: dbError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+          
+          if (!dbError && dbUser) {
+            fullUserData = {
+              id: dbUser.id,
+              username: dbUser.username || data.user.email?.split('@')[0] || 'user',
+              email: dbUser.email || data.user.email || '',
+              role: (dbUser.role as UserRole) || (data.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+              name: dbUser.name || data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
+              companyId: dbUser.company_id || data.user.user_metadata?.company_id,
+              companyName: dbUser.company_name || data.user.user_metadata?.company_name,
+              createdAt: dbUser.created_at || data.user.created_at,
+              updatedAt: dbUser.updated_at || data.user.updated_at || data.user.created_at,
+            };
+          }
+        } catch (err) {
+          console.warn('Erro ao buscar dados completos do usuário:', err);
+        }
+
+        // Usar dados da tabela users se disponível, senão usar metadata do Auth
+        const role = fullUserData?.role || (data.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN;
+        const userData: User = fullUserData || {
           id: data.user.id,
-          username: username,
+          username: username, // Manter o username usado no login
           email: data.user.email || '',
-          role: role as UserRole,
+          role: role,
           name: data.user.user_metadata?.name || username,
           companyId: data.user.user_metadata?.company_id,
           companyName: data.user.user_metadata?.company_name,

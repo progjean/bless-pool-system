@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 
 -- Criar índices para melhor performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+CREATE INDEX IF NOT EXISTS idx_users_username ON public.users(username);
 CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
 
 -- Função para sincronizar um usuário do Auth para a tabela users
