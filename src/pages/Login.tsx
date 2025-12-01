@@ -86,13 +86,6 @@ export const Login: React.FC = () => {
             {loading ? t('login.submitting') : t('login.submit')}
           </button>
         </form>
-
-        <div className="login-info">
-          <p><strong>{t('login.testUsers')}</strong></p>
-          <p>{t('login.testAdmin')}</p>
-          <p>{t('login.testSupervisor')}</p>
-          <p>{t('login.testTechnician')}</p>
-        </div>
       </div>
     </div>
   );
