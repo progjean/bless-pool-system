@@ -69,6 +69,7 @@ CREATE TRIGGER on_auth_user_created
   EXECUTE FUNCTION sync_auth_user_to_users();
 
 -- Sincronizar usuários existentes do Auth para a tabela users
+-- IMPORTANTE: Usar DO NOTHING para não sobrescrever alterações feitas na tabela users
 INSERT INTO public.users (
   id,
   email,
@@ -92,14 +93,7 @@ SELECT
   updated_at
 FROM auth.users
 WHERE email IS NOT NULL
-ON CONFLICT (id) DO UPDATE SET
-  email = EXCLUDED.email,
-  username = EXCLUDED.username,
-  name = EXCLUDED.name,
-  role = EXCLUDED.role,
-  company_id = EXCLUDED.company_id,
-  company_name = EXCLUDED.company_name,
-  updated_at = EXCLUDED.updated_at;
+ON CONFLICT (id) DO NOTHING; -- NÃO atualizar se já existir - preserva alterações feitas na tabela users
 
 -- Comentário: Esta função e trigger garantem que todos os usuários do Auth sejam automaticamente
 -- sincronizados para a tabela users, permitindo que apareçam na página de gerenciamento de usuários.
