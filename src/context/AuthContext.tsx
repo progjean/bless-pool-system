@@ -50,185 +50,188 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const initializeAuth = async () => {
-      if (isSupabaseConfigured()) {
-        // Primeiro, tentar usar dados do localStorage como fallback rápido
-        const savedUser = localStorage.getItem('blessPool_user');
-        if (savedUser) {
-          try {
-            const userData = JSON.parse(savedUser);
-            setUser(userData); // Definir imediatamente para evitar flash de logout
-          } catch (err) {
-            console.warn('Erro ao carregar usuário do localStorage:', err);
-          }
-        }
-
-        // Depois, verificar sessão do Supabase
-        try {
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-          
-          if (sessionError) {
-            console.warn('Erro ao buscar sessão:', sessionError);
-            // Se houver erro mas temos dados no localStorage, manter logado
-            if (savedUser) {
-              setLoading(false);
-              return;
-            }
-          }
-          
-          if (session?.user) {
-            // Buscar dados completos do usuário da tabela users (se existir)
-            let fullUserData: User | null = null;
+      try {
+        if (isSupabaseConfigured()) {
+          // Primeiro, tentar usar dados do localStorage como fallback rápido
+          const savedUser = localStorage.getItem('blessPool_user');
+          if (savedUser) {
             try {
-              const { data: dbUser, error: dbError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
-              
-              if (!dbError && dbUser) {
-                fullUserData = {
-                  id: dbUser.id,
-                  username: dbUser.username || session.user.email?.split('@')[0] || 'user',
-                  email: dbUser.email || session.user.email || '',
-                  role: (dbUser.role as UserRole) || (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
-                  name: dbUser.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-                  companyId: dbUser.company_id || session.user.user_metadata?.company_id,
-                  companyName: dbUser.company_name || session.user.user_metadata?.company_name,
-                  createdAt: dbUser.created_at || session.user.created_at,
-                  updatedAt: dbUser.updated_at || session.user.updated_at || session.user.created_at,
-                };
-              }
+              const userData = JSON.parse(savedUser);
+              setUser(userData); // Definir imediatamente para evitar flash de logout
             } catch (err) {
-              console.warn('Erro ao buscar dados completos do usuário:', err);
-              // Se houver erro mas temos sessão válida, usar dados do Auth
+              console.warn('Erro ao carregar usuário do localStorage:', err);
             }
+          }
 
-            // Usar dados da tabela users se disponível, senão usar metadata do Auth
-            const userData: User = fullUserData || {
-              id: session.user.id,
-              username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'user',
-              email: session.user.email || '',
-              role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
-              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-              companyId: session.user.user_metadata?.company_id,
-              companyName: session.user.user_metadata?.company_name,
-              createdAt: session.user.created_at,
-              updatedAt: session.user.updated_at || session.user.created_at,
-            };
+          // Depois, verificar sessão do Supabase
+          try {
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
             
-            setUser(userData);
-            localStorage.setItem('blessPool_user', JSON.stringify(userData));
-            if (session?.access_token) {
-              localStorage.setItem('blessPool_token', session.access_token);
+            if (sessionError) {
+              console.warn('Erro ao buscar sessão:', sessionError);
+              // Se houver erro mas temos dados no localStorage, manter logado
+              // Não fazer return aqui, deixar continuar para definir loading como false
             }
-          } else {
-            // Se não houver sessão, verificar se temos dados salvos
-            // Se tiver dados salvos, manter logado (não limpar)
+            
+            if (session?.user) {
+              // Buscar dados completos do usuário da tabela users (se existir)
+              let fullUserData: User | null = null;
+              try {
+                const { data: dbUser, error: dbError } = await supabase
+                  .from('users')
+                  .select('*')
+                  .eq('id', session.user.id)
+                  .single();
+                
+                if (!dbError && dbUser) {
+                  fullUserData = {
+                    id: dbUser.id,
+                    username: dbUser.username || session.user.email?.split('@')[0] || 'user',
+                    email: dbUser.email || session.user.email || '',
+                    role: (dbUser.role as UserRole) || (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+                    name: dbUser.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                    companyId: dbUser.company_id || session.user.user_metadata?.company_id,
+                    companyName: dbUser.company_name || session.user.user_metadata?.company_name,
+                    createdAt: dbUser.created_at || session.user.created_at,
+                    updatedAt: dbUser.updated_at || session.user.updated_at || session.user.created_at,
+                  };
+                }
+              } catch (err) {
+                console.warn('Erro ao buscar dados completos do usuário:', err);
+                // Se houver erro mas temos sessão válida, usar dados do Auth
+              }
+
+              // Usar dados da tabela users se disponível, senão usar metadata do Auth
+              const userData: User = fullUserData || {
+                id: session.user.id,
+                username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'user',
+                email: session.user.email || '',
+                role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+                name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                companyId: session.user.user_metadata?.company_id,
+                companyName: session.user.user_metadata?.company_name,
+                createdAt: session.user.created_at,
+                updatedAt: session.user.updated_at || session.user.created_at,
+              };
+              
+              setUser(userData);
+              localStorage.setItem('blessPool_user', JSON.stringify(userData));
+              if (session?.access_token) {
+                localStorage.setItem('blessPool_token', session.access_token);
+              }
+            } else {
+              // Se não houver sessão, verificar se temos dados salvos
+              // Se tiver dados salvos, manter logado (não limpar)
+              if (!savedUser) {
+                // Só limpar se não houver sessão E não houver dados salvos
+                clearAuth();
+              }
+              // Se tiver savedUser, já foi definido acima, então não fazer nada
+            }
+          } catch (err) {
+            console.error('Erro ao inicializar autenticação:', err);
+            // Se houver erro mas temos dados no localStorage, manter logado
+            const savedUser = localStorage.getItem('blessPool_user');
             if (!savedUser) {
-              // Só limpar se não houver sessão E não houver dados salvos
               clearAuth();
             }
-            // Se tiver savedUser, já foi definido acima, então não fazer nada
           }
-        } catch (err) {
-          console.error('Erro ao inicializar autenticação:', err);
-          // Se houver erro mas temos dados no localStorage, manter logado
-          if (!savedUser) {
-            clearAuth();
-          }
-        }
-        
-        // Escutar mudanças de autenticação
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-          // Ignorar evento INITIAL_SESSION para evitar logout desnecessário
-          if (event === 'INITIAL_SESSION' && !session) {
-            // Se não houver sessão inicial mas temos dados salvos, manter logado
-            const savedUser = localStorage.getItem('blessPool_user');
-            if (savedUser) {
+          
+          // Escutar mudanças de autenticação
+          const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            // Ignorar evento INITIAL_SESSION para evitar logout desnecessário
+            if (event === 'INITIAL_SESSION' && !session) {
+              // Se não houver sessão inicial mas temos dados salvos, manter logado
+              const savedUser = localStorage.getItem('blessPool_user');
+              if (savedUser) {
+                try {
+                  const userData = JSON.parse(savedUser);
+                  setUser(userData);
+                  return;
+                } catch (err) {
+                  console.warn('Erro ao carregar usuário salvo:', err);
+                }
+              }
+              return;
+            }
+
+            if (session?.user) {
+              // Buscar dados completos da tabela users (se existir)
+              let fullUserData: User | null = null;
               try {
-                const userData = JSON.parse(savedUser);
-                setUser(userData);
-                return;
+                const { data: dbUser, error: dbError } = await supabase
+                  .from('users')
+                  .select('*')
+                  .eq('id', session.user.id)
+                  .single();
+                
+                if (!dbError && dbUser) {
+                  fullUserData = {
+                    id: dbUser.id,
+                    username: dbUser.username || session.user.email?.split('@')[0] || 'user',
+                    email: dbUser.email || session.user.email || '',
+                    role: (dbUser.role as UserRole) || (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+                    name: dbUser.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                    companyId: dbUser.company_id || session.user.user_metadata?.company_id,
+                    companyName: dbUser.company_name || session.user.user_metadata?.company_name,
+                    createdAt: dbUser.created_at || session.user.created_at,
+                    updatedAt: dbUser.updated_at || session.user.updated_at || session.user.created_at,
+                  };
+                }
               } catch (err) {
-                console.warn('Erro ao carregar usuário salvo:', err);
+                console.warn('Erro ao buscar dados completos do usuário:', err);
               }
-            }
-            return;
-          }
 
-          if (session?.user) {
-            // Buscar dados completos da tabela users (se existir)
-            let fullUserData: User | null = null;
+              // Usar dados da tabela users se disponível, senão usar metadata do Auth
+              const userData: User = fullUserData || {
+                id: session.user.id,
+                username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'user',
+                email: session.user.email || '',
+                role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+                name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                companyId: session.user.user_metadata?.company_id,
+                companyName: session.user.user_metadata?.company_name,
+                createdAt: session.user.created_at,
+                updatedAt: session.user.updated_at || session.user.created_at,
+              };
+              setUser(userData);
+              localStorage.setItem('blessPool_user', JSON.stringify(userData));
+              if (session?.access_token) {
+                localStorage.setItem('blessPool_token', session.access_token);
+              }
+            } else if (event === 'SIGNED_OUT') {
+              // Só limpar quando realmente houver logout explícito
+              clearAuth();
+            }
+          });
+
+          // Limpar subscription ao desmontar
+          return () => {
+            subscription.unsubscribe();
+          };
+        } else {
+          // Fallback: Verificar se há usuário salvo no localStorage
+          const savedUser = localStorage.getItem('blessPool_user');
+          const token = localStorage.getItem('blessPool_token');
+          
+          if (savedUser && token) {
             try {
-              const { data: dbUser, error: dbError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
-              
-              if (!dbError && dbUser) {
-                fullUserData = {
-                  id: dbUser.id,
-                  username: dbUser.username || session.user.email?.split('@')[0] || 'user',
-                  email: dbUser.email || session.user.email || '',
-                  role: (dbUser.role as UserRole) || (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
-                  name: dbUser.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-                  companyId: dbUser.company_id || session.user.user_metadata?.company_id,
-                  companyName: dbUser.company_name || session.user.user_metadata?.company_name,
-                  createdAt: dbUser.created_at || session.user.created_at,
-                  updatedAt: dbUser.updated_at || session.user.updated_at || session.user.created_at,
-                };
-              }
-            } catch (err) {
-              console.warn('Erro ao buscar dados completos do usuário:', err);
+              const userData = JSON.parse(savedUser);
+              setUser(userData);
+              api.setToken(token);
+              validateToken();
+            } catch (error) {
+              console.error('Erro ao carregar usuário salvo:', error);
+              clearAuth();
             }
-
-            // Usar dados da tabela users se disponível, senão usar metadata do Auth
-            const userData: User = fullUserData || {
-              id: session.user.id,
-              username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'user',
-              email: session.user.email || '',
-              role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
-              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-              companyId: session.user.user_metadata?.company_id,
-              companyName: session.user.user_metadata?.company_name,
-              createdAt: session.user.created_at,
-              updatedAt: session.user.updated_at || session.user.created_at,
-            };
-            setUser(userData);
-            localStorage.setItem('blessPool_user', JSON.stringify(userData));
-            if (session?.access_token) {
-              localStorage.setItem('blessPool_token', session.access_token);
-            }
-          } else if (event === 'SIGNED_OUT') {
-            // Só limpar quando realmente houver logout explícito
-            clearAuth();
-          }
-        });
-
-        // Limpar subscription ao desmontar
-        return () => {
-          subscription.unsubscribe();
-        };
-      } else {
-        // Fallback: Verificar se há usuário salvo no localStorage
-        const savedUser = localStorage.getItem('blessPool_user');
-        const token = localStorage.getItem('blessPool_token');
-        
-        if (savedUser && token) {
-          try {
-            const userData = JSON.parse(savedUser);
-            setUser(userData);
-            api.setToken(token);
-            validateToken();
-          } catch (error) {
-            console.error('Erro ao carregar usuário salvo:', error);
-            clearAuth();
           }
         }
+      } catch (error) {
+        console.error('Erro crítico ao inicializar autenticação:', error);
+      } finally {
+        // SEMPRE definir loading como false, mesmo se houver erro
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     initializeAuth();
