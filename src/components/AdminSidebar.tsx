@@ -22,16 +22,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen = false, onCl
   const { user, logout } = useAuth();
   const { t } = useLanguage();
 
-  // Fechar sidebar ao navegar em mobile
+  // Log para debug
   useEffect(() => {
-    if (window.innerWidth <= 768 && onClose && isOpen) {
-      // Pequeno delay para permitir a navegação antes de fechar
-      const timer = setTimeout(() => {
-        onClose();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname, onClose, isOpen]);
+    console.log('Sidebar isOpen:', isOpen); // Debug
+  }, [isOpen]);
 
   const menuItems: MenuItem[] = [
     { path: '/admin/dashboard', icon: '📊', labelKey: 'nav.dashboard', descriptionKey: 'nav.dashboard' },

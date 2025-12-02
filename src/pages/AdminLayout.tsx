@@ -20,7 +20,11 @@ export const AdminLayout: React.FC = () => {
   }, []);
 
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+    setSidebarOpen(prev => {
+      const newState = !prev;
+      console.log('Sidebar toggle:', newState); // Debug
+      return newState;
+    });
   };
 
   const closeSidebar = () => {
