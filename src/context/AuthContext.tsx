@@ -192,8 +192,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             };
             setUser(userData);
             localStorage.setItem('blessPool_user', JSON.stringify(userData));
-            if (session.session?.access_token) {
-              localStorage.setItem('blessPool_token', session.session.access_token);
+            if (session?.access_token) {
+              localStorage.setItem('blessPool_token', session.access_token);
             }
           } else if (event === 'SIGNED_OUT') {
             // Só limpar quando realmente houver logout explícito
