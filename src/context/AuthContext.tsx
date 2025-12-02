@@ -51,55 +51,106 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const initializeAuth = async () => {
       if (isSupabaseConfigured()) {
-        // Usar Supabase Auth
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user) {
-          // Buscar dados completos do usuário da tabela users (se existir)
-          let fullUserData: User | null = null;
+        // Primeiro, tentar usar dados do localStorage como fallback rápido
+        const savedUser = localStorage.getItem('blessPool_user');
+        if (savedUser) {
           try {
-            const { data: dbUser, error: dbError } = await supabase
-              .from('users')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (!dbError && dbUser) {
-              fullUserData = {
-                id: dbUser.id,
-                username: dbUser.username || session.user.email?.split('@')[0] || 'user',
-                email: dbUser.email || session.user.email || '',
-                role: (dbUser.role as UserRole) || (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
-                name: dbUser.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-                companyId: dbUser.company_id || session.user.user_metadata?.company_id,
-                companyName: dbUser.company_name || session.user.user_metadata?.company_name,
-                createdAt: dbUser.created_at || session.user.created_at,
-                updatedAt: dbUser.updated_at || session.user.updated_at || session.user.created_at,
-              };
-            }
+            const userData = JSON.parse(savedUser);
+            setUser(userData); // Definir imediatamente para evitar flash de logout
           } catch (err) {
-            console.warn('Erro ao buscar dados completos do usuário:', err);
+            console.warn('Erro ao carregar usuário do localStorage:', err);
           }
+        }
 
-          // Usar dados da tabela users se disponível, senão usar metadata do Auth
-          const userData: User = fullUserData || {
-            id: session.user.id,
-            username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'user',
-            email: session.user.email || '',
-            role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
-            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-            companyId: session.user.user_metadata?.company_id,
-            companyName: session.user.user_metadata?.company_name,
-            createdAt: session.user.created_at,
-            updatedAt: session.user.updated_at || session.user.created_at,
-          };
+        // Depois, verificar sessão do Supabase
+        try {
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
           
-          setUser(userData);
-          localStorage.setItem('blessPool_user', JSON.stringify(userData));
+          if (sessionError) {
+            console.warn('Erro ao buscar sessão:', sessionError);
+            // Se houver erro mas temos dados no localStorage, manter logado
+            if (savedUser) {
+              setLoading(false);
+              return;
+            }
+          }
+          
+          if (session?.user) {
+            // Buscar dados completos do usuário da tabela users (se existir)
+            let fullUserData: User | null = null;
+            try {
+              const { data: dbUser, error: dbError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+              
+              if (!dbError && dbUser) {
+                fullUserData = {
+                  id: dbUser.id,
+                  username: dbUser.username || session.user.email?.split('@')[0] || 'user',
+                  email: dbUser.email || session.user.email || '',
+                  role: (dbUser.role as UserRole) || (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+                  name: dbUser.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                  companyId: dbUser.company_id || session.user.user_metadata?.company_id,
+                  companyName: dbUser.company_name || session.user.user_metadata?.company_name,
+                  createdAt: dbUser.created_at || session.user.created_at,
+                  updatedAt: dbUser.updated_at || session.user.updated_at || session.user.created_at,
+                };
+              }
+            } catch (err) {
+              console.warn('Erro ao buscar dados completos do usuário:', err);
+              // Se houver erro mas temos sessão válida, usar dados do Auth
+            }
+
+            // Usar dados da tabela users se disponível, senão usar metadata do Auth
+            const userData: User = fullUserData || {
+              id: session.user.id,
+              username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'user',
+              email: session.user.email || '',
+              role: (session.user.user_metadata?.role as UserRole) || UserRole.TECHNICIAN,
+              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+              companyId: session.user.user_metadata?.company_id,
+              companyName: session.user.user_metadata?.company_name,
+              createdAt: session.user.created_at,
+              updatedAt: session.user.updated_at || session.user.created_at,
+            };
+            
+            setUser(userData);
+            localStorage.setItem('blessPool_user', JSON.stringify(userData));
+            if (session.session?.access_token) {
+              localStorage.setItem('blessPool_token', session.session.access_token);
+            }
+          } else if (!savedUser) {
+            // Só limpar se não houver sessão E não houver dados salvos
+            clearAuth();
+          }
+        } catch (err) {
+          console.error('Erro ao inicializar autenticação:', err);
+          // Se houver erro mas temos dados no localStorage, manter logado
+          if (!savedUser) {
+            clearAuth();
+          }
         }
         
         // Escutar mudanças de autenticação
-        supabase.auth.onAuthStateChange(async (_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          // Ignorar evento INITIAL_SESSION para evitar logout desnecessário
+          if (event === 'INITIAL_SESSION' && !session) {
+            // Se não houver sessão inicial mas temos dados salvos, manter logado
+            const savedUser = localStorage.getItem('blessPool_user');
+            if (savedUser) {
+              try {
+                const userData = JSON.parse(savedUser);
+                setUser(userData);
+                return;
+              } catch (err) {
+                console.warn('Erro ao carregar usuário salvo:', err);
+              }
+            }
+            return;
+          }
+
           if (session?.user) {
             // Buscar dados completos da tabela users (se existir)
             let fullUserData: User | null = null;
@@ -141,10 +192,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             };
             setUser(userData);
             localStorage.setItem('blessPool_user', JSON.stringify(userData));
-          } else {
+            if (session.session?.access_token) {
+              localStorage.setItem('blessPool_token', session.session.access_token);
+            }
+          } else if (event === 'SIGNED_OUT') {
+            // Só limpar quando realmente houver logout explícito
             clearAuth();
           }
         });
+
+        // Limpar subscription ao desmontar
+        return () => {
+          subscription.unsubscribe();
+        };
       } else {
         // Fallback: Verificar se há usuário salvo no localStorage
         const savedUser = localStorage.getItem('blessPool_user');
