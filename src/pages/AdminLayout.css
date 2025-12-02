@@ -16,8 +16,34 @@
   background: rgba(26, 26, 46, 0.95);
   border-bottom: 1px solid var(--border-color);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+
+.menu-toggle-button {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  font-size: 28px;
+  cursor: pointer;
+  padding: 8px;
+  line-height: 1;
+  transition: color 0.3s ease;
+  border-radius: 4px;
+}
+
+.menu-toggle-button:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.hamburger-icon {
+  display: block;
+  font-weight: bold;
 }
 
 .admin-content-body {
@@ -27,19 +53,59 @@
   background: var(--bg-color);
 }
 
+/* Overlay para mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (max-width: 768px) {
   .admin-content {
     margin-left: 0;
+    width: 100%;
   }
 
-  .admin-sidebar {
-    position: fixed;
-    left: -100%;
-    transition: left 0.3s ease;
+  .menu-toggle-button {
+    display: block;
   }
 
-  .admin-sidebar.open {
-    left: 0;
+  .admin-content-header {
+    padding: 12px 16px;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .admin-content-body {
+    padding: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content-header {
+    padding: 10px 12px;
+  }
+
+  .menu-toggle-button {
+    font-size: 24px;
+    padding: 6px;
   }
 }
 

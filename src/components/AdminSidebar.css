@@ -118,11 +118,64 @@
   background: rgba(244, 67, 54, 0.2);
 }
 
+/* Botão de fechar no header */
+.sidebar-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-close-button {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.sidebar-close-button:hover {
+  color: var(--error-color);
+}
+
 @media (max-width: 768px) {
   .admin-sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
+    width: 280px;
+    max-width: 85vw;
+    position: fixed;
+    left: -100%;
+    top: 0;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .admin-sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-close-button {
+    display: block;
+  }
+
+  .sidebar-header {
+    padding: 16px;
+  }
+
+  .sidebar-header h2 {
+    font-size: 20px;
+  }
+
+  .nav-item {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .nav-icon {
+    font-size: 22px;
   }
 }
 
