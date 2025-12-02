@@ -118,12 +118,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             
             setUser(userData);
             localStorage.setItem('blessPool_user', JSON.stringify(userData));
-            if (session.session?.access_token) {
-              localStorage.setItem('blessPool_token', session.session.access_token);
+            if (session?.access_token) {
+              localStorage.setItem('blessPool_token', session.access_token);
             }
-          } else if (!savedUser) {
-            // Só limpar se não houver sessão E não houver dados salvos
-            clearAuth();
+          } else {
+            // Se não houver sessão, verificar se temos dados salvos
+            // Se tiver dados salvos, manter logado (não limpar)
+            if (!savedUser) {
+              // Só limpar se não houver sessão E não houver dados salvos
+              clearAuth();
+            }
+            // Se tiver savedUser, já foi definido acima, então não fazer nada
           }
         } catch (err) {
           console.error('Erro ao inicializar autenticação:', err);
