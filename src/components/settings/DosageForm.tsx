@@ -81,7 +81,7 @@ export const DosageForm: React.FC<DosageFormProps> = ({ dosage, onSave, onCancel
     }
 
     const dosageData: DosageStandard = {
-      id: dosage?.id || `dosage_${Date.now()}`,
+      id: dosage?.id || '', // Deixar vazio para novos - o banco gerará UUID
       name: formData.dosageType,
       unit: formData.unit,
       defaultAmount: dosage?.defaultAmount || 0,

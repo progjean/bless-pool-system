@@ -123,8 +123,11 @@ export const settingsService = {
     try {
       const supabaseData = readingToSupabase(reading);
       
-      if (reading.id && reading.id.startsWith('reading_')) {
-        // Atualizar
+      // Verificar se é um UUID válido (formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+      const isValidUUID = reading.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reading.id);
+      
+      if (isValidUUID) {
+        // Atualizar registro existente
         const { data, error } = await supabase
           .from('reading_standards')
           .update(supabaseData as any)
@@ -135,7 +138,7 @@ export const settingsService = {
         if (error) throw error;
         return supabaseToReading(data);
       } else {
-        // Criar novo
+        // Criar novo registro (banco gerará UUID automaticamente)
         const { data, error } = await supabase
           .from('reading_standards')
           .insert(supabaseData as any)
@@ -239,7 +242,11 @@ export const settingsService = {
     try {
       const supabaseData = dosageToSupabase(dosage);
       
-      if (dosage.id && dosage.id.startsWith('dosage_')) {
+      // Verificar se é um UUID válido (formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+      const isValidUUID = dosage.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(dosage.id);
+      
+      if (isValidUUID) {
+        // Atualizar registro existente
         const { data, error } = await supabase
           .from('dosage_standards')
           .update(supabaseData as any)
@@ -250,6 +257,7 @@ export const settingsService = {
         if (error) throw error;
         return supabaseToDosage(data);
       } else {
+        // Criar novo registro (banco gerará UUID automaticamente)
         const { data, error } = await supabase
           .from('dosage_standards')
           .insert(supabaseData as any)

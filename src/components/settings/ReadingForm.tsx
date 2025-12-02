@@ -74,7 +74,7 @@ export const ReadingForm: React.FC<ReadingFormProps> = ({ reading, onSave, onCan
     }
 
     const readingData: ReadingStandard = {
-      id: reading?.id || `reading_${Date.now()}`,
+      id: reading?.id || '', // Deixar vazio para novos - o banco gerará UUID
       name: formData.readingType,
       unit: formData.unit,
       minValue: reading?.minValue || 0,
